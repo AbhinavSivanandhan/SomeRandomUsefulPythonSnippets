@@ -4,6 +4,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose=require("mongoose");
 const date=require(__dirname+"/date.js");
+const _ = require("lodash");
+
 const app = express();
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended: true})); // Can be true or false, but have to set a value
@@ -63,7 +65,7 @@ app.get("/about",function(req,res){
 
 app.get("/:customListName",function(req,res){
 // console.log(req.params.customListName);
-const customListName=req.params.customListName;
+const customListName=_.capitalize(req.params.customListName);
 
 List.findOne({name: customListName},function(err, foundList){
 if(!err){
