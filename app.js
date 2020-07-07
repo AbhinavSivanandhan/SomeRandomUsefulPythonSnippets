@@ -2,54 +2,140 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose=require("mongoose");
 const date=require(__dirname+"/date.js");
-// console.log(date); wont run function
-//console.log(date()); //this will
-let items=["Buy Food", "Cook Food", "Eat Food"];//avoid var's for security purposes wrt scope
-//note even though items will change, can have const here because const doesn't apply to items in the array, only to the array assignment itself
-let workItems=[];
-
 const app = express();
 app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended: true})); // Can be true or false, but have to set a value
 app.use(express.static("public"));
+
+mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true });
+
+const itemsSchema={
+  name: String
+};
+
+const Item=mongoose.model("Item", itemsSchema); //we call it item since we want the model to be called items automatically by mongoose
+
+const item1=new Item({
+  name: "Welcome to your todolist!"
+});
+
+const item2=new Item({
+  name: "Hit the + button to add a new item."
+});
+
+const item3=new Item({
+  name: "<--- Hit this to delete an item"
+});
+
+const defaultItems=[item1,item2,item3];
+
+const listSchema={
+  name: String,
+  items: [itemsSchema]
+};
+
+const List=mongoose.model("List",listSchema);
+
 app.get("/", function(req, res){
-  // res.write("<p>Hello</p><p>how are><br></p> you<p> kf</p?");
-  // res.write("<p>Hello</p><p>how are><br></p> you<p> kf</p?")
-  // res.send();
   
-  // var currentDay=today.getDay();
-  let day=date.getDate();
-
-  // if(currentDay === 6 || currentDay === 0) {//saturday or sunday
-  
-
-  res.render("list", {ListTitle: day, newListItems: items}); //goes to list.ejs in views
-});
-
-app.post("/",function(req,res){
-  let item=req.body.newItem;
-  if(req.body.list == "Work"){
-    workItems.push(item);
-    res.redirect("/work");
+  Item.find({},function(err, foundItems){
+  if(foundItems.length===0){
+    Item.insertMany(defaultItems, function(err){
+      if(err){
+      console.log("Error");
+      }else{
+      console.log("Sucessfully added items");
+      }
+      });
+      res.redirect("/");//so that we not just insert, but also find
   }else{
-    items.push(item);
-    res.redirect("/");
+    res.render("list", {ListTitle: "Today", newListItems: foundItems}); //goes to list.ejs in views 
   }
+    //console.log(foundItems);//can call it anything, finditems founditems, it's only a formal parameter remember?
+});
 });
 
-app.get("/work",function(req,res){
-  res.render("list",{ListTitle: "Work", newListItems: workItems});
-})
 app.get("/about",function(req,res){
   res.render("about");
-})
+});
 
-app.post("/work",function(req,res){
-  let item = req.body.newItem;
-  workItems.push(item);
-  res.redirect("/work");
-})
+app.get("/:customListName",function(req,res){
+// console.log(req.params.customListName);
+const customListName=req.params.customListName;
+
+List.findOne({name: customListName},function(err, foundList){
+if(!err){
+  if(!foundList){
+
+    // console.log("Nothing found");
+    const list=new List({
+      name: customListName,
+      items: defaultItems
+    });
+    list.save();
+    res.redirect("/"+customListName);
+  }else{
+    // console.log("exists");
+    res.render("list", {ListTitle: foundList.name, newListItems: foundList.items});
+  }
+}
+});//note that foundItems is formal parameter
+
+
+});
+
+
+app.post("/",function(req,res){
+  const itemName = req.body.newItem;
+  const listName = req.body.list; //list is from the submit button listtitle value
+  
+  const item=new Item({ //create item no matter what list
+    name: itemName 
+  });
+  if (listName=="Today"){
+    item.save(); //Note: shortcut instead of using any of the insert methods
+    res.redirect("/");
+  } else{
+    List.findOne({name: listName},function(err,foundList){//the formal parameter again, foundList, can be any name
+      foundList.items.push(item);
+      foundList.save();
+      res.redirect("/"+listName); //send to the correct get route
+    });
+  }
+  
+});
+
+app.post("/delete",function(req, res){
+  const checkedItemId = req.body.checkbox;
+  const listName=req.body.listName;//listName is the name of input hidden tag
+  
+  if(listName==="Today"){
+  
+  Item.findByIdAndRemove(checkedItemId, function(err){ //callback is necessary to even run the function, even if we don't care for errors
+
+    if(!err){
+      console.log("Successfully deleted the checked item");
+      res.redirect("/");
+    }
+  })
+}else{
+  //little more tricky because unlike main list, these list items are inside another i
+  List.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkedItemId}}}, function(err, foundList){
+    if(!err){
+      res.redirect("/"+listName);
+    }
+
+  });
+}
+
+});
+
+
+
+
+
 
 app.listen(8080, function(){
   console.log("Server started on port 8080.");

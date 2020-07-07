@@ -6,17 +6,16 @@
 
     
     <div class="box">
-    <!-- <ul> -->
-    <% for (var i=0; i<newListItems.length; i++){ %>
-    <div class="item">
-        <input type="checkbox">
-        <!-- Don't even comment ejs tags, they give error, they are still identified in the comment -->
-      
-    
-    <p> <%= newListItems[i] %> </p>
-</div>  
-    <% } %>
+    <% newListItems.forEach(function(item){ %>
+        <form action="/delete" method="post"> <!-- triggered when checkbox is clicked -->
 
+        <div class="item">
+            <input type="checkbox" name="checkbox" value="<%=item._id%>" onChange="this.form.submit()">
+         <p> <%= item.name %> </p> <!--can use the old for lop as well but it is a little cluttered right -->
+    </div>  
+        <input type="hidden" name="listName" value="<%= ListTitle%>"></input>
+        </form>
+    <% }); %>
 
     <form class="item" action="/" method="post">
     <input type="text" name="newItem" placeholder="New Item" autocomplete="off">
