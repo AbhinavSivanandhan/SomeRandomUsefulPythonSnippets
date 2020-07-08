@@ -142,10 +142,8 @@ if(port == null || port == ""){
   port = 3000;
 }
 
-app.listen(port, function(){
-  console.log("Server started successfully.");
+
+app.listen(process.env.PORT || 3000, function(){ //process object is defined by heroku
+  // adding or 3000 allows us to run locally as well as heroku
+  console.log("Server is up and running!");
 });
-// app.listen(process.env.PORT || 3000, function(){ //process object is defined by heroku
-//   // adding or 3000 allows us to run locally as well as heroku
-//   console.log("Server is up and running!");
-// });
