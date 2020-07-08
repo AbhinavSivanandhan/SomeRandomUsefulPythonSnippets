@@ -11,8 +11,10 @@ app.set('view engine','ejs');
 app.use(bodyParser.urlencoded({extended: true})); // Can be true or false, but have to set a value
 app.use(express.static("public"));
 
-mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true });
-
+//mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true }); //start mongod to use this
+mongoose.connect("mongodb+srv://admin-abhinav:o1de86N8l3VDsBdh@cluster0.k5gej.mongodb.net/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true });
+//autogenerate admin password 
+//Consider using mobile hotspot to avoid wifi denying access for security reasons
 const itemsSchema={
   name: String
 };
