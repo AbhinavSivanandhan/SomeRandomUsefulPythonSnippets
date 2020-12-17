@@ -1,0 +1,3 @@
+Use sqlalchemy, retrieve data as query and use resource fields to serialise this data and return it.
+import fields and marshal_with(it is a decorator serialises on the specified resource fields) for flask
+https://www.youtube.com/watch?v=GMppyAPbLYk
