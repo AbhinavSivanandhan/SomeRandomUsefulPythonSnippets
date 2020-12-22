@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({extended: true})); // Can be true or false, but h
 app.use(express.static("public"));
 
 //mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true }); //start mongod to use this
-mongoose.connect("mongodb+srv://admin-abhinav:o1de86N8l3VDsBdh@cluster0.k5gej.mongodb.net/todolistDB", {useNewUrlParser: true, useUnifiedTopology: true });
+
 //autogenerate admin password 
 //Consider using mobile hotspot to avoid wifi denying access for security reasons
 const itemsSchema={
@@ -125,7 +125,7 @@ app.post("/delete",function(req, res){
     }
   })
 }else{
-  //little more tricky because unlike main list, these list items are inside another i
+  //little more tricky because unlike main list, these list items are inside another document/item
   List.findOneAndUpdate({name: listName}, {$pull: {items: {_id: checkedItemId}}}, function(err, foundList){
     if(!err){
       res.redirect("/"+listName);
