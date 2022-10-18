@@ -1,0 +1,7 @@
+Two number sum should match targetSum
+
+Soln:1
+Use 2 for loops, O(n^2), space O(1)
+soln2:
+hashmap
+use num1 to find potentialmatch=targetsum-num1, then look for potentialmatch in array, if so, return it. else store potentialmatch in the hashmap
