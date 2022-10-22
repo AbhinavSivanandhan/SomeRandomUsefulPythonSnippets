@@ -1,0 +1,1 @@
+Tip: Look for vulnerable for loops. Check for a way to avoid nested for. In this example we used an index variable instead of looping through
