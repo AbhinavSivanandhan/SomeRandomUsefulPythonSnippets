@@ -1,0 +1,3 @@
+Given a list of coins of possibly repeating value, find the smallest change you can NOT form with them
+
+The logic here is to find by brute force, sort the array and find the smallest change possible for each coin added and keep going until there is a change which can't be created. 
